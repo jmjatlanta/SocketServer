@@ -40,7 +40,6 @@ SocketServer::~SocketServer()
     if (listenSocket != INVALID_SOCKET)
         closesocket(listenSocket);
 	connectionsThread->join();
-	std::cerr << "Socket server destructor completed.\n";
 }
 
 void SocketServer::SendToAll(const std::vector<unsigned char>& in)
@@ -48,13 +47,10 @@ void SocketServer::SendToAll(const std::vector<unsigned char>& in)
 	auto cnt = CountOpenConnections();
 	if (cnt == 0)
 		return;
-	std::cerr << "Sending " << std::to_string(in.size()) << " bytes to " 
-				<< std::to_string(cnt) << " connections.\n";
 	for(auto& client : clients)
 	{
 		if (client.isValid && !client.Write(in))
 		{
-			std::cerr << "Write error. Disconnecting client.\n";
 			client.Disconnect();
 		}
 	}
@@ -101,11 +97,9 @@ void SocketServer::AwaitNewConnections()
 				std::cerr << "Awaiting connections.\n";
 				client.SetSocket(accept(listenSocket, NULL, NULL));
 				if (!client.isValid) {
-					std::cerr << "Unable to add a client!\n";
 					continue;
 				}
 				clients.push_back(client);
-				std::cerr << "Added a client number " << std::to_string(client.socket) << "\n";
 			}
 		} 
 	}
